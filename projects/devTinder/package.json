@@ -1,0 +1,23 @@
+{
+  "name": "devtinder",
+  "version": "1.0.0",
+  "description": "Tinder for devs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Anoushka03/devTinder.git"
+  },
+  "author": "Anoushka Palvia",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Anoushka03/devTinder/issues"
+  },
+  "homepage": "https://github.com/Anoushka03/devTinder#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
