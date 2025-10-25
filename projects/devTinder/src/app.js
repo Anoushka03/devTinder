@@ -36,6 +36,42 @@ app.get("/feed", async (req, res) => {
     }
 });
 
+app.get("/id", async (req, res) => {
+    try {
+        const user = await User.findById("68e970e4c531293f13d848e0");
+        res.send(user);
+    } catch (err) {
+        res.status(400).send("Something went wrong");
+    }
+});
+
+app.delete("/delete/:id", async (req, res) => {
+    try {
+        const user = await User.findByIdAndDelete(req.params.id);
+        res.send(user);
+    } catch(err) {
+        res.status(400).send("Something went wrong");
+    }
+});
+
+app.patch("/update/:name", async (req, res) => {
+    try {
+        const user = await User.updateOne({"firstName": req.params.name}, {"emailId": "jeff@gmail.com"});
+        res.send(user);
+    } catch (err) {
+        res.status(400).send("Something went wrong");
+    }
+})
+
+app.put("/update/:name", async (req, res) => {
+    try {
+        const user = await User.updateOne({"firstName": req.params.name}, {$set: req.body});
+        res.send(user);
+    } catch (err) {
+        res.status(400).send("Something went wrong");
+    }
+});
+
 
 // Database should be connected successfully before starting up the server
 connectDB().then(()=> {
