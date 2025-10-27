@@ -19,6 +19,7 @@
   "homepage": "https://github.com/Anoushka03/devTinder#readme",
   "dependencies": {
     "express": "^5.1.0",
-    "mongoose": "^8.19.1"
+    "mongoose": "^8.19.1",
+    "validator": "^13.15.20"
   }
 }

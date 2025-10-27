@@ -12,7 +12,7 @@ app.post("/signup", async (req, res) => {
         await user.save();
         res.send("User added successfully");
     } catch (err) {
-        res.status(400).send("Unable to process the request");
+        res.status(400).send("Unable to process the request:" + err.message);
     }
 
 });
@@ -54,12 +54,23 @@ app.delete("/delete/:id", async (req, res) => {
     }
 });
 
-app.patch("/update/:name", async (req, res) => {
+app.patch("/update", async (req, res) => {
+    
+    const ALLOWED_UPDATES = ["gender", "password", "age", "about", "userID"];
+
     try {
-        const user = await User.updateOne({"firstName": req.params.name}, {"emailId": "jeff@gmail.com"});
+
+        const isUpdateAllowed = Object.keys(req.body).every(k => ALLOWED_UPDATES.includes(k));
+        console.log(isUpdateAllowed);
+        if (!isUpdateAllowed) {
+            throw new Error("Update is not allowed on the given field");
+        }
+        // validate functions do not work automatically with update api we have specify the attribute called
+        // runValidators to make validate function work on update as well
+        const user = await User.updateOne({_id: req.body.userID}, req.body, { runValidators: true });
         res.send(user);
     } catch (err) {
-        res.status(400).send("Something went wrong");
+        res.status(400).send("Something went wrong" + err.message);
     }
 })
 
