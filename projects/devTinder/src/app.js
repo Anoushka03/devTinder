@@ -5,9 +5,14 @@ const app = express();
 const validateSignupData = require("./utils/validateData");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
+const {userAuth} = require("./middleware/userAuth"); 
 
 // middleware for parsing request from json to javascript object
 app.use(express.json());
+// This middleware is used to parse the cookies received from request
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
     // Validate the data
@@ -47,15 +52,33 @@ app.post("/login", async (req, res) => {
             throw new Error("Invalid credentials");
         }
 
-        const isValidPassword = await bcrypt.compare(password, user.password);
+        const isValidPassword = user.validatePassword(password);
         if(!isValidPassword) {
             throw new Error("Invalid credentials");
         }
+
+        // Create a JWT token
+        const token = user.getJWT();
+
+        // Add token to the cookie and send cookie back to the user
+        res.cookie("token", token, {expires: new Date(Date.now() + 60 * 60 * 1000)});
 
         res.send("Login successfull");
     } catch (err) {
         res.status(404).send("Error:" + err.message);
     }
+})
+
+app.get("/profile", userAuth, async (req, res) => {
+    try {
+        res.send(req.user);
+    } catch (error) {
+        res.status(404).send("Error:" + error.message);
+    }
+})
+
+app.post("/sendConnectionReq", userAuth, async (req, res) => {
+    res.send("This user is sending request :" + req.user);
 })
 
 app.get("/user", async (req, res) => {
