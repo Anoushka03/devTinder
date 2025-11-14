@@ -12,4 +12,8 @@ const validateSignupData = (req) => {
     }
 }
 
-module.exports = validateSignupData;
+const assignData = (req) => {
+    Object.keys(req.body).every(key => req.user[key] = req.body[key]);
+}
+
+module.exports = {validateSignupData, assignData};

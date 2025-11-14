@@ -55,6 +55,7 @@ const userSchema = mongoose.Schema({
 },
 { timestamps: true });
 
+//schema methods
 userSchema.methods.getJWT = async function () {
     // Use normal function since 'this' doesn't work in arrow function 
     const user = this;
