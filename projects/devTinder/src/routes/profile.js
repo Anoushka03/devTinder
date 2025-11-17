@@ -1,10 +1,11 @@
 const express = require("express");
 const profileRouter = express.Router();
 const { userAuth } = require("../middleware/userAuth"); 
-const authRouter = require("./auth");
 const { assignData } = require("../utils/validateData");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
+const User = require("../models/user");
+const ConnectionRequest = require("../models/connectionRequest");
 
 profileRouter.get("/profile", userAuth, async (req, res) => {
     try {
@@ -14,7 +15,7 @@ profileRouter.get("/profile", userAuth, async (req, res) => {
     }
 })
 
-authRouter.patch("/profile/edit", userAuth, async (req, res) => {
+profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
     // validate the req.body
     const ALLOWED_UPDATES = ["gender", "age", "about"];
 
@@ -34,7 +35,7 @@ authRouter.patch("/profile/edit", userAuth, async (req, res) => {
     }
 })
 
-authRouter.patch("/profile/forgotPassword", userAuth, async (req, res) => {
+profileRouter.patch("/profile/forgotPassword", userAuth, async (req, res) => {
     // validate req.body
     const password = req.body.password;
     const confirmPassword = req.body.confirmPassword;
@@ -53,6 +54,48 @@ authRouter.patch("/profile/forgotPassword", userAuth, async (req, res) => {
         res.send("Password changed successfully");
     } catch (error) {
         res.status(400).send("Error: " + error);
+    }
+})
+
+profileRouter.post("/profile/sendConnectionRequest/:status/:toUserId", userAuth, async (req, res) => {
+    // Validate the data
+    const status = req.params.status;
+    const toUserId = req.params.toUserId;
+    const fromUser = req.user;
+    const ALLOWED_STATUS = ["interested", "ignored"];
+    try {
+        const isValidStatus = ALLOWED_STATUS.includes(status);
+        if(!isValidStatus) {
+            throw new Error("Invalid status");
+        }
+
+        const user = await User.findById(toUserId);
+        if(!user) {
+            throw new Error("Invalid user");
+        }
+
+        const existingConnection = await ConnectionRequest.find({
+            $or: [
+                { fromUserId: fromUser._id, toUserId: toUserId },        // sent by you
+                { fromUserId: toUserId, toUserId: fromUser._id }         // sent to you
+            ]
+        });
+
+        if(existingConnection.length > 0) {
+            throw new Error("Existing connection");
+        }
+
+        const newConnection = new ConnectionRequest({"fromUserId": fromUser._id, "toUserId": toUserId,
+            "status": status
+        });
+
+        await newConnection.save();
+
+        res.json({
+            "message": "Connection request successfull: " + status
+        })
+    } catch (error) {
+        res.status(400).send(error.message);
     }
 })
 

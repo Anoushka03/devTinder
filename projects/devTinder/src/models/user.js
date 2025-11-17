@@ -26,7 +26,7 @@ const userSchema = mongoose.Schema({
     "emailId": {
         type: String,
         required: true,
-        unique: true,
+        //unique: true, // create index
         lowercase: true,
         trim: true,
         validate(value) {
@@ -68,5 +68,7 @@ userSchema.methods.validatePassword = async function (passwordInput) {
     const isPasswordValid = await bcrypt.compare(passwordInput, user.password);
     return isPasswordValid;
 }
+
+userSchema.index({ emailId: -1});
 
 module.exports = mongoose.model("User", userSchema);
