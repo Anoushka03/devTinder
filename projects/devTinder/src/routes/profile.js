@@ -99,4 +99,42 @@ profileRouter.post("/profile/sendConnectionRequest/:status/:toUserId", userAuth,
     }
 })
 
+profileRouter.post("/profile/review/:status/:requestId", userAuth, async (req, res) => {
+
+    const { status, requestId } = req.params;
+    const ALLOWED_STATUS = ["accepted", "rejected"];
+    const loggedInUser = req.user;
+
+    try {
+        const isValidStatus = ALLOWED_STATUS.includes(status);
+        if (!isValidStatus) {
+            throw new Error("Invalid status");
+        }
+
+        if (loggedInUser._id.equals(requestId)) {
+            throw new Error("Self request not allowed");
+        }
+
+        const existingRequest = await ConnectionRequest.findOne({
+            fromUserId: requestId,
+            toUserId: loggedInUser._id,
+            status: "interested"
+        });
+
+        if (!existingRequest) {
+            throw new Error("No request present");
+        }
+
+        existingRequest.status = status;
+        await existingRequest.save();
+        res.json({
+            message: "Request accepted successfully"
+        })
+    } catch (error) {
+        res.status(400).json({
+            message: "Error : " + error.message
+        })
+    }
+});
+
 module.exports = profileRouter;

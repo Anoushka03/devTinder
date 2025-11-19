@@ -5,6 +5,7 @@ const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const cookieParser = require("cookie-parser");
 const {userAuth} = require("./middleware/userAuth"); 
+const userRouter = require("./routes/user");
 
 // middleware for parsing request from json to javascript object
 app.use(express.json());
@@ -13,6 +14,7 @@ app.use(cookieParser());
 
 app.use("/", authRouter);
 app.use("/", profileRouter);
+app.use("/", userRouter);
 
 // Database should be connected successfully before starting up the server
 connectDB().then(()=> {
