@@ -29,7 +29,6 @@ authRouter.post("/signup", async (req, res) => {
 
 authRouter.post("/login", async (req, res) => {
     const {emailId, password} = req.body;
-
     try {
         // validate the data
         if (!validator.isEmail(emailId)) {
@@ -43,9 +42,10 @@ authRouter.post("/login", async (req, res) => {
             throw new Error("Invalid credentials");
         }
 
-        const result = await User.findOne({"emailId": emailId}).explain("allPlansExecution");
+        const result = await User.findOne({"emailId": emailId});
         console.log(result);
-        const isValidPassword = user.validatePassword(password);
+        const isValidPassword = await user.validatePassword(password);
+        console.log("password: ", isValidPassword);
         if(!isValidPassword) {
             throw new Error("Invalid credentials");
         }
@@ -57,7 +57,7 @@ authRouter.post("/login", async (req, res) => {
         // Add token to the cookie and send cookie back to the user
         res.cookie("token", token);
 
-        res.send("Login successfull");
+        res.send(result);
     } catch (err) {
         res.status(404).send("Error:" + err.message);
     }

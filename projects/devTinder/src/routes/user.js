@@ -87,9 +87,11 @@ userRouter.get("/user/feed", userAuth, async (req, res) => {
             hiddenUsers.add(req.fromUserId._id);
             hiddenUsers.add(req.toUserId._id);
         });
+
+        hiddenUsers.add(loggedInUser._id);
         const feedUsers = await User.find({
             _id: { $nin: Array.from(hiddenUsers) }
-        }).select("firstName").skip((page - 1) * lmt).limit(lmt);
+        }).skip((page - 1) * lmt).limit(lmt);
 
         res.json({
             data: feedUsers

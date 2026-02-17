@@ -6,7 +6,12 @@ const profileRouter = require("./routes/profile");
 const cookieParser = require("cookie-parser");
 const {userAuth} = require("./middleware/userAuth"); 
 const userRouter = require("./routes/user");
+const cors = require("cors");
 
+app.use(cors({
+  origin: "http://localhost:5173",   // React Vite frontend
+  credentials: true                   // allow cookies
+}));
 // middleware for parsing request from json to javascript object
 app.use(express.json());
 // This middleware is used to parse the cookies received from request
