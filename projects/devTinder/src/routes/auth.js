@@ -55,7 +55,13 @@ authRouter.post("/login", async (req, res) => {
 
         console.log("before sending token: ", token);
         // Add token to the cookie and send cookie back to the user
-        res.cookie("token", token);
+        const cookieOptions = {
+            httpOnly: true,
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 60 * 60 * 1000
+        };
+        res.cookie("token", token, cookieOptions);
 
         res.send(result);
     } catch (err) {
@@ -64,7 +70,11 @@ authRouter.post("/login", async (req, res) => {
 })
 
 authRouter.post("/logout", async (req, res) => {
-    res.clearCookie("token", null, {expires: new Date(0)});
+    res.clearCookie("token", {
+        httpOnly: true,
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        secure: process.env.NODE_ENV === "production"
+    });
     res.send("logout successfull");
 })
 
